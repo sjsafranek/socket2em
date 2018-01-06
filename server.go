@@ -128,7 +128,7 @@ func (self *Server) closeClient(conn net.Conn, idx int) {
 	self.NumClients--
 	conn.Close()
 	self.guard.Lock()
-	delete(self.Clients, index)
+	delete(self.Clients, idx)
 	self.guard.Unlock()
 }
 
@@ -136,7 +136,7 @@ func (self *Server) closeClient(conn net.Conn, idx int) {
 func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 
 	self.NumClients++
-	defer self.closeClient(conn, index)
+	defer self.closeClient(conn, idx)
 
 	reader := bufio.NewReader(conn)
 	tp := textproto.NewReader(reader)
