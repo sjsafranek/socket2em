@@ -72,7 +72,7 @@ func (self *Server) init() {
 		self.MethodHandlers = make(map[string]func(Message, net.Conn))
 	}
 	if nil == self.Clients {
-		self.Clients = make(map[int]net.Conn)
+		self.Clients = make(map[int]*net.Conn)
 	}
 }
 
