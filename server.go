@@ -13,12 +13,12 @@ import (
 )
 
 type Server struct {
-	Host             string
-	Port             int
-	ConnType         string
-	ActiveTcpClients int
-	LoggingHandler   func(string)
-	MethodHandlers   map[string]func(Message, net.Conn)
+	Host           string
+	Port           int
+	ConnType       string
+	NumClients     int
+	LoggingHandler func(string)
+	MethodHandlers map[string]func(Message, net.Conn)
 }
 
 func (self *Server) RegisterMethod(method string, function func(Message, net.Conn)) error {
@@ -67,59 +67,59 @@ func (self *Server) Start() {
 
 	self.MethodHandlers = make(map[string]func(Message, net.Conn))
 
-	self.ActiveTcpClients = 0
-	go func() {
-		// Check settings and apply defaults
-		serv := fmt.Sprintf("%v:%v", self.getHost(), self.getPort())
+	self.NumClients = 0
+	// go func() {
+	// Check settings and apply defaults
+	serv := fmt.Sprintf("%v:%v", self.getHost(), self.getPort())
 
-		// Listen for incoming connections.
-		l, err := net.Listen(self.getConnType(), serv)
+	// Listen for incoming connections.
+	l, err := net.Listen(self.getConnType(), serv)
+	if err != nil {
+		self.Log("Error listening:", err.Error())
+		panic(err)
+	}
+	self.Log("Tcp Listening on " + serv)
+
+	// Close the listener when the application closes.
+	defer l.Close()
+
+	for {
+		// Listen for an incoming connection.
+		conn, err := l.Accept()
 		if err != nil {
-			self.Log("Error listening:", err.Error())
-			panic(err)
+			self.Log("Error accepting connection: ", err.Error())
+			return
 		}
-		self.Log("Tcp Listening on " + serv)
 
-		// Close the listener when the application closes.
-		defer l.Close()
+		self.Log(conn.RemoteAddr().String(), "Connection open")
 
-		for {
-			// Listen for an incoming connection.
-			conn, err := l.Accept()
-			if err != nil {
-				self.Log("Error accepting connection: ", err.Error())
-				return
-			}
+		// check for local connection
+		// if strings.Contains(conn.RemoteAddr().String(), "127.0.0.1") {
+		// Handle connections in a new goroutine.
+		go self.tcpClientHandler(conn)
+		// } else {
+		// 	// don't accept not local connections
+		// 	conn.Close()
+		// }
 
-			self.Log(conn.RemoteAddr().String(), "Connection open")
-
-			// check for local connection
-			// if strings.Contains(conn.RemoteAddr().String(), "127.0.0.1") {
-			// Handle connections in a new goroutine.
-			go self.tcpClientHandler(conn)
-			// } else {
-			// 	// don't accept not local connections
-			// 	conn.Close()
-			// }
-
-		}
-	}()
+	}
+	// }()
 }
 
 func (self *Server) GetNumClients() int {
-	return self.ActiveTcpClients
+	return self.NumClients
 }
 
 // close tcp client
 func (self *Server) closeClient(conn net.Conn) {
-	self.ActiveTcpClients--
+	self.NumClients--
 	conn.Close()
 }
 
 // Handles incoming requests.
 func (self *Server) tcpClientHandler(conn net.Conn) {
 
-	self.ActiveTcpClients++
+	self.NumClients++
 	defer self.closeClient(conn)
 
 	reader := bufio.NewReader(conn)
