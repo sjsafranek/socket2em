@@ -20,7 +20,7 @@ type Server struct {
 	NumClients     int
 	LoggingHandler func(string)
 	MethodHandlers map[string]func(Message, net.Conn)
-	Clients        map[int]net.Conn
+	Clients        map[int]*net.Conn
 	guard          sync.RWMutex
 }
 
@@ -83,7 +83,7 @@ func (self *Server) Start() {
 	counter := 0
 
 	self.NumClients = 0
-	// go func() {
+
 	// Check settings and apply defaults
 	serv := fmt.Sprintf("%v:%v", self.getHost(), self.getPort())
 
@@ -110,20 +110,13 @@ func (self *Server) Start() {
 
 		self.guard.Lock()
 		counter++
-		self.Clients[counter] = conn
+		self.Clients[counter] = &conn
 		self.guard.Unlock()
 
-		// check for local connection
-		// if strings.Contains(conn.RemoteAddr().String(), "127.0.0.1") {
 		// Handle connections in a new goroutine.
 		go self.tcpClientHandler(conn, counter)
-		// } else {
-		// 	// don't accept not local connections
-		// 	conn.Close()
-		// }
 
 	}
-	// }()
 }
 
 func (self *Server) GetNumClients() int {
@@ -135,7 +128,7 @@ func (self *Server) closeClient(conn net.Conn, index int) {
 	self.NumClients--
 	conn.Close()
 	self.guard.Lock()
-	delete(self.Clients[index])
+	delete(self.Clients, index)
 	self.guard.Unlock()
 }
 
