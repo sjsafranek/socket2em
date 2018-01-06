@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/textproto"
 	"strings"
+	"sync"
 )
 
 type Server struct {
@@ -19,6 +20,8 @@ type Server struct {
 	NumClients     int
 	LoggingHandler func(string)
 	MethodHandlers map[string]func(Message, net.Conn)
+	Clients        map[int]net.Conn
+	guard          sync.RWMutex
 }
 
 func (self *Server) RegisterMethod(method string, function func(Message, net.Conn)) error {
@@ -68,11 +71,16 @@ func (self *Server) init() {
 	if nil == self.MethodHandlers {
 		self.MethodHandlers = make(map[string]func(Message, net.Conn))
 	}
+	if nil == self.Clients {
+		self.Clients = make(map[int]net.Conn)
+	}
 }
 
 func (self *Server) Start() {
 
 	self.init()
+
+	counter := 0
 
 	self.NumClients = 0
 	// go func() {
@@ -100,10 +108,15 @@ func (self *Server) Start() {
 
 		self.Log(conn.RemoteAddr().String(), "Connection open")
 
+		self.guard.RLock()
+		counter++
+		self.Clients[counter] = conn
+		self.guard.RUnlock()
+
 		// check for local connection
 		// if strings.Contains(conn.RemoteAddr().String(), "127.0.0.1") {
 		// Handle connections in a new goroutine.
-		go self.tcpClientHandler(conn)
+		go self.tcpClientHandler(conn, counter)
 		// } else {
 		// 	// don't accept not local connections
 		// 	conn.Close()
@@ -124,7 +137,7 @@ func (self *Server) closeClient(conn net.Conn) {
 }
 
 // Handles incoming requests.
-func (self *Server) tcpClientHandler(conn net.Conn) {
+func (self *Server) tcpClientHandler(conn net.Conn, index int) {
 
 	self.NumClients++
 	defer self.closeClient(conn)
