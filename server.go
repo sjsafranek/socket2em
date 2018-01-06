@@ -108,10 +108,10 @@ func (self *Server) Start() {
 
 		self.Log(conn.RemoteAddr().String(), "Connection open")
 
-		self.guard.RLock()
+		self.guard.Lock()
 		counter++
 		self.Clients[counter] = conn
-		self.guard.RUnlock()
+		self.guard.Unlock()
 
 		// check for local connection
 		// if strings.Contains(conn.RemoteAddr().String(), "127.0.0.1") {
@@ -131,16 +131,20 @@ func (self *Server) GetNumClients() int {
 }
 
 // close tcp client
-func (self *Server) closeClient(conn net.Conn) {
+func (self *Server) closeClient(conn net.Conn, index int) {
 	self.NumClients--
 	conn.Close()
+	self.guard.Lock()
+	delete self.Clients[index]
+	self.guard.Unlock()
+
 }
 
 // Handles incoming requests.
 func (self *Server) tcpClientHandler(conn net.Conn, index int) {
 
 	self.NumClients++
-	defer self.closeClient(conn)
+	defer self.closeClient(conn, index)
 
 	reader := bufio.NewReader(conn)
 	tp := textproto.NewReader(reader)
