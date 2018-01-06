@@ -20,7 +20,7 @@ type Server struct {
 	NumClients     int
 	LoggingHandler func(string)
 	MethodHandlers map[string]func(Message, net.Conn)
-	Clients        map[int]*net.Conn
+	Clients        map[int]net.Conn
 	guard          sync.RWMutex
 }
 
@@ -72,7 +72,7 @@ func (self *Server) init() {
 		self.MethodHandlers = make(map[string]func(Message, net.Conn))
 	}
 	if nil == self.Clients {
-		self.Clients = make(map[int]*net.Conn)
+		self.Clients = make(map[int]net.Conn)
 	}
 }
 
@@ -110,7 +110,7 @@ func (self *Server) Start() {
 
 		self.guard.Lock()
 		counter++
-		self.Clients[counter] = &conn
+		self.Clients[counter] = conn
 		self.guard.Unlock()
 
 		// Handle connections in a new goroutine.
