@@ -22,8 +22,9 @@ type Server struct {
 }
 
 func (self *Server) RegisterMethod(method string, function func(Message, net.Conn)) error {
+	self.init()
 	if "help" == method {
-		// return fmt.Errorf("Method not allowed")
+		return fmt.Errorf("Method not allowed")
 	}
 	self.MethodHandlers[method] = function
 	return nil
@@ -63,9 +64,15 @@ func (self *Server) getConnType() string {
 	return self.ConnType
 }
 
+func (self *Server) init() {
+	if nil == self.MethodHandlers {
+		self.MethodHandlers = make(map[string]func(Message, net.Conn))
+	}
+}
+
 func (self *Server) Start() {
 
-	self.MethodHandlers = make(map[string]func(Message, net.Conn))
+	self.init()
 
 	self.NumClients = 0
 	// go func() {
