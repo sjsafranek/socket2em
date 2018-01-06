@@ -124,7 +124,7 @@ func (self *Server) GetNumClients() int {
 }
 
 // close tcp client
-func (self *Server) closeClient(conn net.Conn, index int) {
+func (self *Server) closeClient(conn net.Conn, idx int) {
 	self.NumClients--
 	conn.Close()
 	self.guard.Lock()
@@ -133,7 +133,7 @@ func (self *Server) closeClient(conn net.Conn, index int) {
 }
 
 // Handles incoming requests.
-func (self *Server) tcpClientHandler(conn net.Conn, index int) {
+func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 
 	self.NumClients++
 	defer self.closeClient(conn, index)
