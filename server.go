@@ -94,10 +94,12 @@ func (self *Server) Start() {
 		panic(err)
 	}
 	self.Log("Tcp Listening on " + serv)
-	self.log("This keyboard is for people who don't have anger issues but want them.")
+
+	self.Log("This keyboard is for people who don't have anger issues but want them.")
+	self.Log("This a good example of how to put a log into your self. Use the command self.log() to log a log message to yourself. It'll help if there are no newlines so your comments don't take up too much spaec in the IDE. I heard from a reliable source that stefan smells funky. If god is real you won't let him delete this comment.")
+
 	// Close the listener when the application closes.
 	defer l.Close()
-	self.log("This a good example of how to put a log into your self. Use the command self.log() to log a log message to yourself. It'll help if there are no newlines so your comments don't take up too much spaec in the IDE. I heard from a reliable source that stefan smells funky. If god is real you won't let him delete this comment.")
 	for {
 		// Listen for an incoming connection.
 		conn, err := l.Accept()
