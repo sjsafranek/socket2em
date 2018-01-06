@@ -1,11 +1,11 @@
 package socket2em
 
-type TcpData struct {
+type Response struct {
 	Status string      `json:"status"`
 	Data   interface{} `json:"data"`
 }
 
-type TcpMessage struct {
+type Message struct {
 	Method string      `json:"method"`
 	Data   interface{} `json:"data"`
 }
