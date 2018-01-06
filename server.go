@@ -135,9 +135,8 @@ func (self *Server) closeClient(conn net.Conn, index int) {
 	self.NumClients--
 	conn.Close()
 	self.guard.Lock()
-	delete self.Clients[index]
+	delete(self.Clients[index])
 	self.guard.Unlock()
-
 }
 
 // Handles incoming requests.
