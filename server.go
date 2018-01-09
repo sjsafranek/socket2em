@@ -19,6 +19,7 @@ type Server struct {
 	ConnType       string
 	NumClients     int
 	LoggingHandler func(string)
+	OnDisconnect   func(string)
 	MethodHandlers map[string]func(Message, net.Conn)
 	Clients        map[int]net.Conn
 	guard          sync.RWMutex
@@ -129,6 +130,9 @@ func (self *Server) closeClient(conn net.Conn, idx int) {
 	self.guard.Lock()
 	delete(self.Clients, idx)
 	self.guard.Unlock()
+	if nil != self.OnDisconnect {
+		self.OnDisconnect(conn.RemoteAddr().String())
+	}
 }
 
 // Handles incoming requests.
