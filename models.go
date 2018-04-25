@@ -7,5 +7,6 @@ type Response struct {
 
 type Message struct {
 	Method string      `json:"method"`
-	Data   interface{} `json:"data"`
+	// Data   interface{} `json:"data"`
+	Data json.RawMessage `json:data`
 }
