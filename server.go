@@ -157,6 +157,24 @@ func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 			continue
 		}
 
+		// Command
+		exitFlag := false
+		switch {
+		case strings.HasPrefix("help"):
+			conn.Write([]byte("TODO\n"))
+			continue
+		case strings.HasPrefix("quit"):
+			fallthrough
+		case strings.HasPrefix("bye"):
+			fallthrough
+		case strings.HasPrefix("exit"):
+			exitFlag = true
+		}
+		if exitFlag {
+			break
+		}
+		//.end
+
 		self.Log(conn.RemoteAddr().String(), "Message Received:", string([]byte(message)))
 
 		// json parse message
