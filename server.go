@@ -160,14 +160,14 @@ func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 		// Command
 		exitFlag := false
 		switch {
-		case strings.HasPrefix("help"):
+		case strings.HasPrefix(message, "help"):
 			conn.Write([]byte("TODO\n"))
 			continue
-		case strings.HasPrefix("quit"):
+		case strings.HasPrefix(message, "quit"):
 			fallthrough
-		case strings.HasPrefix("bye"):
+		case strings.HasPrefix(message, "bye"):
 			fallthrough
-		case strings.HasPrefix("exit"):
+		case strings.HasPrefix(message, "exit"):
 			exitFlag = true
 		}
 		if exitFlag {
