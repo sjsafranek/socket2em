@@ -226,7 +226,7 @@ func (self *Server) Help() string {
 	for i := range self.MethodHandlers {
 		methods = append(methods, i)
 	}
-	response := fmt.Sprintf(`["%v"]`, strings.Join(methods, `", "`))
+	response := fmt.Sprintf(`{"methods":["%v"]}`, strings.Join(methods, `", "`))
 	return response
 }
 
