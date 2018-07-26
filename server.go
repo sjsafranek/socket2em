@@ -161,7 +161,8 @@ func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 		exitFlag := false
 		switch {
 		case strings.HasPrefix(message, "help"):
-			conn.Write([]byte("TODO\n"))
+			response := self.Help()
+			self.HandleSuccess(response, conn)
 			continue
 		case strings.HasPrefix(message, "quit"):
 			fallthrough
@@ -198,11 +199,12 @@ func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 
 		case req.Method == "help":
 			// {"method": "help"}
-			methods := []string{"help"}
-			for i := range self.MethodHandlers {
-				methods = append(methods, i)
-			}
-			response := fmt.Sprintf(`["%v"]`, strings.Join(methods, `", "`))
+			response := self.Help()
+			// methods := []string{"help"}
+			// for i := range self.MethodHandlers {
+			// 	methods = append(methods, i)
+			// }
+			// response := fmt.Sprintf(`["%v"]`, strings.Join(methods, `", "`))
 			self.HandleSuccess(response, conn)
 
 		default:
@@ -217,6 +219,15 @@ func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 		}
 
 	}
+}
+
+func (self *Server) Help() string {
+	methods := []string{"help"}
+	for i := range self.MethodHandlers {
+		methods = append(methods, i)
+	}
+	response := fmt.Sprintf(`["%v"]`, strings.Join(methods, `", "`))
+	return response
 }
 
 func (self Server) HandleError(err error, conn net.Conn) {
