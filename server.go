@@ -192,21 +192,13 @@ func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 		}
 
 		switch {
-
 		case req.Method == "":
 			// No method provided
 			continue
-
 		case req.Method == "help":
 			// {"method": "help"}
 			response := self.Help()
-			// methods := []string{"help"}
-			// for i := range self.MethodHandlers {
-			// 	methods = append(methods, i)
-			// }
-			// response := fmt.Sprintf(`["%v"]`, strings.Join(methods, `", "`))
 			self.HandleSuccess(response, conn)
-
 		default:
 			// Run registered method
 			if function, ok := self.MethodHandlers[req.Method]; ok {
@@ -215,9 +207,7 @@ func (self *Server) tcpClientHandler(conn net.Conn, idx int) {
 				err := errors.New("Method not found")
 				self.HandleError(err, conn)
 			}
-
 		}
-
 	}
 }
 
