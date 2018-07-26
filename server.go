@@ -241,3 +241,9 @@ func (self Server) SendResponseFromStruct(data interface{}, conn net.Conn) {
 	}
 	self.HandleSuccess(string(js), conn)
 }
+
+func (self *Server) Broadcast(message string) {
+	for _, conn := range self.Clients {
+		conn.Write([]byte(fmt.Sprintf("%v\n", message)))
+	}
+}
