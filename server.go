@@ -247,3 +247,8 @@ func (self *Server) Broadcast(message string) {
 		conn.Write([]byte(fmt.Sprintf("%v\n", message)))
 	}
 }
+func (self *Server) Shutdown() {
+	for idx, conn := range self.Clients {
+		self.closeClient(conn, idx)
+	}
+}
